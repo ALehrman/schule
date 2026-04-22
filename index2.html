@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reaktionstest</title>
+<style>
+
+:root {
+–bg: #0f1117;
+–surface: #1a1d27;
+–surface2: #22263a;
+–accent: #00e5ff;
+–accent2: #ff6b6b;
+–accent3: #ffd166;
+–text: #e8eaf0;
+–muted: #6b7280;
+–border: #2e3348;
+–green: #06d6a0;
+}
+
+- { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+font-family: ‘IBM Plex Sans’, sans-serif;
+background: var(–bg);
+color: var(–text);
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+/* ── PAGES ── */
+.page { display: none !important; min-height: 100vh; }
+.page.active { display: -webkit-flex !important; display: flex !important; -webkit-flex-direction: column; flex-direction: column; }
+
+/* ── HEADER ── */
+header {
+display: -webkit-flex; display: flex;
+-webkit-align-items: center; align-items: center;
+-webkit-justify-content: space-between; justify-content: space-between;
+padding: 18px 32px;
+border-bottom: 1px solid var(–border);
+background: var(–surface);
+}
+.logo {
+font-family: ‘Space Mono’, monospace;
+font-size: 1.1rem;
+color: var(–accent);
+letter-spacing: 0.08em;
+}
+.logo span { color: var(–muted); }
+.counter-pill {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.85rem;
+background: var(–surface2);
+border: 1px solid var(–border);
+border-radius: 20px;
+padding: 4px 14px;
+color: var(–accent);
+}
+
+/* ── START PAGE ── */
+#page-start {
+-webkit-align-items: center; align-items: center;
+-webkit-justify-content: center; justify-content: center;
+gap: 0;
+background: radial-gradient(ellipse at 30% 20%, #0d2a3a 0%, var(–bg) 60%);
+}
+.start-inner {
+text-align: center;
+max-width: 520px;
+padding: 40px 24px;
+}
+.start-inner h1 {
+font-family: ‘Space Mono’, monospace;
+font-size: clamp(2rem, 5vw, 3rem);
+color: var(–accent);
+line-height: 1.1;
+margin-bottom: 12px;
+}
+.start-inner h1 em {
+display: block;
+color: var(–text);
+font-style: normal;
+font-size: 0.45em;
+font-weight: 400;
+letter-spacing: 0.2em;
+margin-bottom: 8px;
+}
+.start-inner p {
+color: var(–muted);
+line-height: 1.7;
+margin: 20px 0 36px;
+font-size: 0.95rem;
+}
+.settings-row {
+display: -webkit-flex; display: flex;
+gap: 16px;
+-webkit-justify-content: center; justify-content: center;
+margin-bottom: 32px;
+-webkit-flex-wrap: wrap; flex-wrap: wrap;
+}
+.setting-box {
+background: var(–surface2);
+border: 1px solid var(–border);
+border-radius: 10px;
+padding: 12px 20px;
+text-align: center;
+}
+.setting-box label {
+display: block;
+font-size: 0.72rem;
+color: var(–muted);
+letter-spacing: 0.1em;
+text-transform: uppercase;
+margin-bottom: 6px;
+}
+.setting-box input[type=range] {
+width: 120px;
+accent-color: var(–accent);
+}
+.setting-box .val {
+font-family: ‘Space Mono’, monospace;
+font-size: 1rem;
+color: var(–accent);
+}
+
+/* ── BUTTONS ── */
+.btn-primary {
+font-family: ‘Space Mono’, monospace;
+font-size: 1rem;
+background: var(–accent);
+color: #000;
+border: none;
+border-radius: 8px;
+padding: 14px 40px;
+cursor: pointer;
+letter-spacing: 0.06em;
+transition: transform 0.1s, box-shadow 0.2s;
+box-shadow: 0 0 24px rgba(0,229,255,0.25);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 36px rgba(0,229,255,0.4); }
+.btn-primary:active { transform: scale(0.97); }
+
+.btn-secondary {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.85rem;
+background: transparent;
+color: var(–muted);
+border: 1px solid var(–border);
+border-radius: 8px;
+padding: 10px 24px;
+cursor: pointer;
+letter-spacing: 0.05em;
+transition: color 0.2s, border-color 0.2s;
+}
+.btn-secondary:hover { color: var(–text); border-color: var(–text); }
+
+/* ── TEST PAGE ── */
+#page-test { background: var(–bg); }
+.test-body {
+-webkit-flex: 1; flex: 1;
+display: -webkit-flex; display: flex;
+-webkit-flex-direction: column; flex-direction: column;
+padding: 24px 32px;
+gap: 20px;
+}
+.status-bar {
+display: -webkit-flex; display: flex;
+gap: 16px;
+-webkit-flex-wrap: wrap; flex-wrap: wrap;
+}
+.stat-chip {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 8px;
+padding: 8px 18px;
+font-family: ‘Space Mono’, monospace;
+font-size: 0.8rem;
+}
+.stat-chip .label { color: var(–muted); font-size: 0.68rem; display: block; }
+.stat-chip .value { color: var(–accent); }
+.stat-chip.last .value { color: var(–accent3); }
+
+/* reaction field – 2×2 grid */
+.reaction-grid {
+-webkit-flex: 1; flex: 1;
+display: grid;
+grid-template-columns: 1fr 1fr;
+grid-template-rows: 1fr 1fr;
+gap: 12px;
+max-width: 600px;
+width: 100%;
+margin: 0 auto;
+aspect-ratio: 1.2;
+max-height: 380px;
+}
+.reaction-cell {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 14px;
+display: -webkit-flex; display: flex;
+-webkit-align-items: center; align-items: center;
+-webkit-justify-content: center; justify-content: center;
+position: relative;
+overflow: hidden;
+}
+.reaction-btn {
+display: none;
+width: 80%;
+height: 80%;
+border-radius: 12px;
+border: none;
+background: var(–accent);
+color: #000;
+font-family: ‘Space Mono’, monospace;
+font-size: 0.9rem;
+font-weight: 700;
+cursor: pointer;
+letter-spacing: 0.05em;
+animation: pulse-in 0.08s ease;
+box-shadow: 0 0 30px rgba(0,229,255,0.5);
+transition: background 0.1s;
+}
+.reaction-btn:hover { background: #33ecff; }
+.reaction-btn.active { display: block; }
+.reaction-btn.wrong { background: var(–accent2); box-shadow: 0 0 30px rgba(255,107,107,0.5); }
+
+@keyframes pulse-in {
+from { transform: scale(0.7); opacity: 0; }
+to   { transform: scale(1);   opacity: 1; }
+}
+
+.instruction-overlay {
+position: absolute;
+inset: 0;
+background: var(–surface);
+display: -webkit-flex; display: flex;
+-webkit-flex-direction: column; flex-direction: column;
+-webkit-align-items: center; align-items: center;
+-webkit-justify-content: center; justify-content: center;
+gap: 8px;
+border-radius: 12px;
+color: var(–muted);
+font-size: 0.85rem;
+text-align: center;
+padding: 20px;
+pointer-events: none;
+}
+.instruction-overlay .big { font-size: 2rem; }
+.instruction-overlay.hidden { display: none; }
+
+.waiting-indicator {
+text-align: center;
+color: var(–muted);
+font-size: 0.9rem;
+animation: blink 1s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.waiting-indicator.hidden { display: none; }
+
+/* sparkline bar chart below grid */
+.mini-chart {
+width: 100%;
+max-width: 600px;
+margin: 0 auto;
+height: 80px;
+position: relative;
+}
+.mini-chart canvas { width: 100%; height: 100%; }
+
+.test-controls {
+display: -webkit-flex; display: flex;
+gap: 12px;
+-webkit-justify-content: center; justify-content: center;
+padding-bottom: 12px;
+-webkit-flex-wrap: wrap; flex-wrap: wrap;
+}
+
+/* ── RESULT PAGE ── */
+#page-result {
+background: radial-gradient(ellipse at 70% 80%, #0d1f2d 0%, var(–bg) 60%);
+}
+.result-body {
+-webkit-flex: 1; flex: 1;
+display: -webkit-flex; display: flex;
+-webkit-flex-direction: column; flex-direction: column;
+-webkit-align-items: center; align-items: center;
+padding: 28px 24px;
+gap: 28px;
+overflow-y: auto;
+}
+.result-title {
+font-family: ‘Space Mono’, monospace;
+font-size: 1.5rem;
+color: var(–accent);
+text-align: center;
+}
+.result-title small {
+display: block;
+font-size: 0.75rem;
+color: var(–muted);
+margin-top: 4px;
+letter-spacing: 0.1em;
+}
+
+.stats-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+gap: 12px;
+width: 100%;
+max-width: 700px;
+}
+.stat-card {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 12px;
+padding: 16px;
+text-align: center;
+}
+.stat-card .s-label { font-size: 0.7rem; color: var(–muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+.stat-card .s-val { font-family: ‘Space Mono’, monospace; font-size: 1.4rem; color: var(–accent); }
+.stat-card .s-val.green { color: var(–green); }
+.stat-card .s-val.red { color: var(–accent2); }
+.stat-card .s-val.yellow { color: var(–accent3); }
+.stat-card .s-unit { font-size: 0.72rem; color: var(–muted); margin-top: 2px; }
+
+.boxplot-section {
+width: 100%;
+max-width: 700px;
+}
+.boxplot-section h2 {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.9rem;
+color: var(–muted);
+letter-spacing: 0.1em;
+margin-bottom: 14px;
+border-left: 3px solid var(–accent);
+padding-left: 10px;
+}
+.kenn-table-wrap {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 12px;
+overflow: auto;
+}
+.kenn-table {
+width: 100%;
+border-collapse: collapse;
+font-size: 0.85rem;
+}
+.kenn-table thead th {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.72rem;
+color: var(–muted);
+text-transform: uppercase;
+letter-spacing: 0.08em;
+padding: 12px 18px;
+background: var(–surface2);
+text-align: left;
+}
+.kenn-table thead th:first-child { width: 52%; }
+.kenn-table td {
+padding: 11px 18px;
+border-top: 1px solid var(–border);
+}
+.kenn-table td:first-child {
+color: var(–muted);
+font-size: 0.78rem;
+letter-spacing: 0.04em;
+}
+.kenn-table td.num {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.95rem;
+}
+.kenn-table td.num.cyan  { color: var(–accent); }
+.kenn-table td.num.green { color: var(–green); }
+.kenn-table td.num.red   { color: var(–accent2); }
+.kenn-table td.num.yellow{ color: var(–accent3); }
+.kenn-table tr.sep td    { background: var(–surface2); padding: 4px 18px; font-size: 0.7rem; color: #3a4060; letter-spacing: 0.1em; text-transform: uppercase; }
+.urliste-box {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 12px;
+padding: 16px 20px;
+font-family: ‘Space Mono’, monospace;
+font-size: 0.78rem;
+color: var(–muted);
+line-height: 1.9;
+word-break: break-all;
+}
+.urliste-box strong {
+display: block;
+color: var(–accent3);
+font-size: 0.7rem;
+letter-spacing: 0.1em;
+text-transform: uppercase;
+margin-bottom: 6px;
+}
+
+.history-section {
+width: 100%;
+max-width: 700px;
+}
+.history-section h2 {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.9rem;
+color: var(–muted);
+letter-spacing: 0.1em;
+margin-bottom: 14px;
+border-left: 3px solid var(–accent3);
+padding-left: 10px;
+}
+.history-table-wrap {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 12px;
+overflow: auto;
+max-height: 280px;
+}
+table {
+width: 100%;
+border-collapse: collapse;
+font-size: 0.82rem;
+}
+thead th {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.72rem;
+color: var(–muted);
+text-transform: uppercase;
+letter-spacing: 0.08em;
+padding: 10px 16px;
+background: var(–surface2);
+text-align: left;
+position: sticky;
+top: 0;
+}
+tbody td {
+padding: 8px 16px;
+border-top: 1px solid var(–border);
+font-family: ‘Space Mono’, monospace;
+font-size: 0.8rem;
+}
+tbody tr:hover { background: var(–surface2); }
+.result-controls {
+display: -webkit-flex; display: flex;
+gap: 12px;
+-webkit-flex-wrap: wrap; flex-wrap: wrap;
+-webkit-justify-content: center; justify-content: center;
+padding-bottom: 24px;
+}
+.export-note {
+font-size: 0.75rem;
+color: var(–muted);
+text-align: center;
+}
+</style>
+
+</head>
+<body>
+
+<!-- ══════════ START PAGE ══════════ -->
+
+<div id="page-start" class="page active">
+  <div class="start-inner">
+    <h1>
+      <em>Statistik &amp; Wahrnehmung</em>
+      Reaktions&shy;test
+    </h1>
+    <p>
+      Ein Button erscheint zufällig an einer von vier Positionen — aber nie zweimal 
+      hintereinander an der gleichen. Klicke so schnell wie möglich darauf.
+      Am Ende siehst du deine Reaktionszeiten als <strong>Boxplot</strong>.
+    </p>
+
+```
+<div class="settings-row">
+  <div class="setting-box">
+    <label>Anzahl Versuche</label>
+    <input type="range" id="set-trials" min="10" max="200" value="40" step="5"
+           oninput="document.getElementById('val-trials').textContent=this.value">
+    <div class="val" id="val-trials">40</div>
+  </div>
+  <div class="setting-box">
+    <label>Min. Wartezeit</label>
+    <input type="range" id="set-wmin" min="500" max="2000" value="800" step="100"
+           oninput="document.getElementById('val-wmin').textContent=this.value+' ms'">
+    <div class="val" id="val-wmin">800 ms</div>
+  </div>
+  <div class="setting-box">
+    <label>Max. Wartezeit</label>
+    <input type="range" id="set-wmax" min="1000" max="5000" value="2500" step="100"
+           oninput="document.getElementById('val-wmax').textContent=this.value+' ms'">
+    <div class="val" id="val-wmax">2500 ms</div>
+  </div>
+</div>
+
+<button class="btn-primary" onclick="startTest()">▶ Test starten</button>
+```
+
+  </div>
+</div>
+
+<!-- ══════════ TEST PAGE ══════════ -->
+
+<div id="page-test" class="page">
+  <header>
+    <div class="logo">REAKTIONS<span>TEST</span></div>
+    <div class="counter-pill" id="trial-pill">0 / 0</div>
+  </header>
+
+  <div class="test-body">
+    <div class="status-bar">
+      <div class="stat-chip">
+        <span class="label">Versuch</span>
+        <span class="value" id="chip-trial">—</span>
+      </div>
+      <div class="stat-chip last">
+        <span class="label">Letzte Zeit</span>
+        <span class="value" id="chip-last">—</span>
+      </div>
+      <div class="stat-chip">
+        <span class="label">Beste</span>
+        <span class="value" id="chip-best">—</span>
+      </div>
+      <div class="stat-chip">
+        <span class="label">Median</span>
+        <span class="value" id="chip-median">—</span>
+      </div>
+    </div>
+
+```
+<!-- 2×2 grid -->
+<div class="reaction-grid" id="reaction-grid">
+  <div class="reaction-cell" id="cell-0">
+    <div class="instruction-overlay" id="overlay">
+      <div class="big">👆</div>
+      Warte auf den Button …<br>
+      <small style="color:#444;margin-top:8px">und klicke SO SCHNELL WIE MÖGLICH!</small>
+    </div>
+    <button class="reaction-btn" id="btn-0" onclick="handleClick(0)">STOPP!</button>
+  </div>
+  <div class="reaction-cell" id="cell-1">
+    <button class="reaction-btn" id="btn-1" onclick="handleClick(1)">STOPP!</button>
+  </div>
+  <div class="reaction-cell" id="cell-2">
+    <button class="reaction-btn" id="btn-2" onclick="handleClick(2)">STOPP!</button>
+  </div>
+  <div class="reaction-cell" id="cell-3">
+    <button class="reaction-btn" id="btn-3" onclick="handleClick(3)">STOPP!</button>
+  </div>
+</div>
+
+<div class="waiting-indicator hidden" id="waiting-indicator">⏳ warte …</div>
+
+<div class="mini-chart">
+  <canvas id="sparkline"></canvas>
+</div>
+
+<div class="test-controls">
+  <button class="btn-secondary" onclick="abortTest()">✕ Abbrechen</button>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- ══════════ RESULT PAGE ══════════ -->
+
+<div id="page-result" class="page">
+  <header>
+    <div class="logo">AUSWERTUNG<span></span></div>
+    <div class="counter-pill" id="result-pill">— Messungen</div>
+  </header>
+
+  <div class="result-body">
+    <div class="result-title">
+      Deine Ergebnisse
+      <small>REAKTIONSZEITEN IN MILLISEKUNDEN</small>
+    </div>
+
+```
+<div class="stats-grid" id="stats-grid"></div>
+
+<div class="boxplot-section">
+  <h2>KENNZAHLEN — Erste 20 vs. Letzte 20 Messungen</h2>
+  <div class="kenn-table-wrap">
+    <table class="kenn-table">
+      <thead><tr>
+        <th>Kennzahl</th>
+        <th id="kenn-head-first">Erste 20</th>
+        <th id="kenn-head-last">Letzte 20</th>
+      </tr></thead>
+      <tbody id="kenn-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="boxplot-section" style="margin-top:0">
+  <h2>URLISTEN (sortiert)</h2>
+  <div id="urliste-container" style="display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;gap:10px;"></div>
+</div>
+
+<div class="history-section">
+  <h2>ALLE MESSUNGEN</h2>
+  <div class="history-table-wrap">
+    <table>
+      <thead><tr>
+        <th>#</th>
+        <th>Zeit (ms)</th>
+        <th>Bewertung</th>
+      </tr></thead>
+      <tbody id="history-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="export-note">
+  Tipp: Screenshot machen oder Strg+P → Als PDF speichern zum Archivieren.
+</div>
+
+<div class="result-controls">
+  <button class="btn-secondary" onclick="exportCSV()">⬇ CSV exportieren</button>
+  <button class="btn-primary" onclick="goStart()">↺ Nochmal spielen</button>
+</div>
+```
+
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────
+let measurements = [];   // ms values
+let totalTrials   = 40;
+let wMin          = 800;
+let wMax          = 2500;
+
+let currentTrial  = 0;
+let lastPos       = -1;
+let activePos     = -1;
+let tStart        = 0;
+let waitTimer     = null;
+let phase         = 'idle'; // idle | waiting | active | done
+
+// ─────────────────────────────────────────────
+//  PAGE HELPERS
+// ─────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function goStart() { showPage('page-start'); }
+
+// ─────────────────────────────────────────────
+//  TEST FLOW
+// ─────────────────────────────────────────────
+function startTest() {
+  totalTrials  = parseInt(document.getElementById('set-trials').value);
+  wMin         = parseInt(document.getElementById('set-wmin').value);
+  wMax         = parseInt(document.getElementById('set-wmax').value);
+  measurements = [];
+  currentTrial = 0;
+  lastPos      = -1;
+  phase        = 'idle';
+
+  showPage('page-test');
+  updateChips();
+  document.getElementById('trial-pill').textContent = `0 / ${totalTrials}`;
+  drawSparkline();
+  scheduleNext();
+}
+
+function scheduleNext() {
+  if (currentTrial >= totalTrials) { finishTest(); return; }
+
+  hideAllBtns();
+  phase = 'waiting';
+  document.getElementById('waiting-indicator').classList.remove('hidden');
+
+  const delay = Math.random() * (wMax - wMin) + wMin;
+  waitTimer = setTimeout(showButton, delay);
+}
+
+function showButton() {
+  document.getElementById('waiting-indicator').classList.add('hidden');
+  document.getElementById('overlay').classList.add('hidden');
+
+  let pos;
+  do { pos = Math.floor(Math.random() * 4); } while (pos === lastPos);
+  lastPos   = pos;
+  activePos = pos;
+
+  document.getElementById(`btn-${pos}`).classList.add('active');
+  tStart = performance.now();
+  phase  = 'active';
+}
+
+function handleClick(pos) {
+  if (phase !== 'active') {
+    // early / wrong click → flash red
+    document.getElementById(`btn-${pos}`).classList.add('wrong');
+    setTimeout(() => document.getElementById(`btn-${pos}`).classList.remove('wrong'), 300);
+    return;
+  }
+  const t = Math.round(performance.now() - tStart);
+
+  if (pos !== activePos) {
+    // wrong position flash
+    document.getElementById(`btn-${pos}`).classList.add('wrong');
+    setTimeout(() => document.getElementById(`btn-${pos}`).classList.remove('wrong'), 300);
+    return;
+  }
+
+  measurements.push(t);
+  currentTrial++;
+  phase = 'idle';
+
+  hideAllBtns();
+  updateChips(t);
+  document.getElementById('trial-pill').textContent = `${currentTrial} / ${totalTrials}`;
+  drawSparkline();
+  scheduleNext();
+}
+
+function hideAllBtns() {
+  for (let i = 0; i < 4; i++) {
+    const b = document.getElementById(`btn-${i}`);
+    b.classList.remove('active', 'wrong');
+  }
+}
+
+function abortTest() {
+  clearTimeout(waitTimer);
+  phase = 'idle';
+  if (measurements.length >= 5) finishTest();
+  else goStart();
+}
+
+function finishTest() {
+  clearTimeout(waitTimer);
+  phase = 'done';
+  buildResultPage();
+  showPage('page-result');
+}
+
+function updateChips(last) {
+  document.getElementById('chip-trial').textContent = `${currentTrial} / ${totalTrials}`;
+  if (last !== undefined) document.getElementById('chip-last').textContent = last + ' ms';
+  if (measurements.length) {
+    const sorted = [...measurements].sort((a,b)=>a-b);
+    document.getElementById('chip-best').textContent = sorted[0] + ' ms';
+    document.getElementById('chip-median').textContent = median(sorted) + ' ms';
+  }
+}
+
+// ─────────────────────────────────────────────
+//  SPARKLINE
+// ─────────────────────────────────────────────
+function drawSparkline() {
+  const canvas = document.getElementById('sparkline');
+  const ctx    = canvas.getContext('2d');
+  canvas.width  = canvas.offsetWidth  * devicePixelRatio;
+  canvas.height = canvas.offsetHeight * devicePixelRatio;
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  const W = canvas.offsetWidth, H = canvas.offsetHeight;
+  ctx.clearRect(0,0,W,H);
+
+  if (measurements.length < 2) return;
+
+  const mx  = Math.max(...measurements, 600);
+  const mn  = Math.min(...measurements);
+  const pad = 6;
+
+  ctx.strokeStyle = 'rgba(0,229,255,0.6)';
+  ctx.lineWidth   = 1.5;
+  ctx.beginPath();
+  measurements.forEach((v, i) => {
+    const x = pad + (i / (measurements.length-1)) * (W - pad*2);
+    const y = H - pad - ((v - mn) / (mx - mn + 1)) * (H - pad*2);
+    i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+
+  // last dot
+  const last = measurements[measurements.length-1];
+  const lx   = W - pad;
+  const ly   = H - pad - ((last - mn) / (mx - mn + 1)) * (H - pad*2);
+  ctx.fillStyle = '#ffd166';
+  ctx.beginPath();
+  ctx.arc(lx, ly, 4, 0, Math.PI*2);
+  ctx.fill();
+}
+
+// ─────────────────────────────────────────────
+//  STATS
+// ─────────────────────────────────────────────
+function median(sorted) {
+  const n = sorted.length;
+  return n % 2 === 0
+    ? Math.round((sorted[n/2-1] + sorted[n/2]) / 2)
+    : sorted[Math.floor(n/2)];
+}
+function q1(sorted) {
+  const half = sorted.slice(0, Math.floor(sorted.length/2));
+  return median(half);
+}
+function q3(sorted) {
+  const half = sorted.slice(Math.ceil(sorted.length/2));
+  return median(half);
+}
+function iqr(sorted) { return q3(sorted) - q1(sorted); }
+function fiveNum(arr) {
+  const s = [...arr].sort((a,b)=>a-b);
+  const Q1 = q1(s), Q3 = q3(s), IQR = Q3-Q1;
+  const lo = Q1 - 1.5*IQR, hi = Q3 + 1.5*IQR;
+  const whisLo = s.find(v => v >= lo);
+  const whisHi = [...s].reverse().find(v => v <= hi);
+  return { min: s[0], q1: Q1, med: median(s), q3: Q3, max: s[s.length-1], whisLo, whisHi };
+}
+function rating(ms) {
+  if (ms < 200) return ['⚡ Blitz', '#ffd166'];
+  if (ms < 250) return ['🟢 Sehr gut', '#06d6a0'];
+  if (ms < 320) return ['🔵 Gut', '#00e5ff'];
+  if (ms < 400) return ['🟡 Normal', '#ffd166'];
+  if (ms < 500) return ['🟠 Langsam', '#f4a261'];
+  return ['🔴 Träge', '#ff6b6b'];
+}
+
+// ─────────────────────────────────────────────
+//  RESULT PAGE BUILD
+// ─────────────────────────────────────────────
+function buildResultPage() {
+  const n = measurements.length;
+  document.getElementById('result-pill').textContent = `${n} Messungen`;
+
+  const sorted = [...measurements].sort((a,b)=>a-b);
+  const med    = median(sorted);
+  const best   = sorted[0];
+  const worst  = sorted[sorted.length-1];
+  const mean   = Math.round(measurements.reduce((a,b)=>a+b,0) / n);
+  const IQR    = iqr(sorted);
+
+  const [rLabel, rColor] = rating(med);
+
+  const statsData = [
+    { label:'Median',   val: med+' ms',  cls:'' },
+    { label:'Mittelw.', val: mean+' ms', cls:'' },
+    { label:'Beste',    val: best+' ms', cls:'green' },
+    { label:'Schlechteste', val: worst+' ms', cls:'red' },
+    { label:'IQR',      val: IQR+' ms',  cls:'yellow' },
+    { label:'Ergebnis', val: rLabel, cls:'' },
+  ];
+  const sg = document.getElementById('stats-grid');
+  sg.innerHTML = statsData.map(s =>
+    `<div class="stat-card">
+       <div class="s-label">${s.label}</div>
+       <div class="s-val ${s.cls}">${s.val}</div>
+     </div>`
+  ).join('');
+
+  buildKennzahlen();
+  buildTable();
+}
+
+// ─────────────────────────────────────────────
+//  KENNZAHLEN TABELLE + URLISTEN
+// ─────────────────────────────────────────────
+function buildKennzahlen() {
+  const n   = measurements.length;
+  const n20 = Math.min(20, Math.floor(n / 2));
+  const hasTwo = n20 >= 4;
+
+  const first = measurements.slice(0, n20);
+  const last  = measurements.slice(n - n20);
+
+  // update column headers
+  document.getElementById('kenn-head-first').textContent = `Erste ${n20}`;
+  document.getElementById('kenn-head-last').textContent  = hasTwo ? `Letzte ${n20}` : '—';
+
+  function stats(arr) {
+    const s    = [...arr].sort((a,b)=>a-b);
+    const med  = median(s);
+    const Q1   = q1(s);
+    const Q3   = q3(s);
+    const mean = Math.round(arr.reduce((a,b)=>a+b,0)/arr.length);
+    return { min: s[0], max: s[s.length-1], med, Q1, Q3, mean };
+  }
+
+  const sf = stats(first);
+  const sl = hasTwo ? stats(last) : null;
+
+  function row(label, keyF, keyL, cls) {
+    const vF = sf[keyF];
+    const vL = sl ? sl[keyL] : '—';
+    // colour hint: green if last < first (improvement), red if worse
+    let clsL = cls;
+    if (sl && typeof vF === 'number' && typeof vL === 'number') {
+      clsL = vL < vF ? 'green' : vL > vF ? 'red' : cls;
+    }
+    return `<tr>
+      <td>${label}</td>
+      <td class="num cyan">${vF} ms</td>
+      <td class="num ${clsL}">${typeof vL === 'number' ? vL+' ms' : vL}</td>
+    </tr>`;
+  }
+
+  const rows = [
+    `<tr class="sep"><td colspan="3">Lagemaße</td></tr>`,
+    row('Minimum (kleinster Wert)',  'min',  'min',  'cyan'),
+    row('Unteres Quartil Q₁ (25 %)', 'Q1',   'Q1',   'cyan'),
+    row('Median (mittlerer Wert)',   'med',  'med',  'cyan'),
+    row('Oberes Quartil Q₃ (75 %)', 'Q3',   'Q3',   'cyan'),
+    row('Maximum (größter Wert)',    'max',  'max',  'cyan'),
+    `<tr class="sep"><td colspan="3">Weitere Kennzahlen</td></tr>`,
+    row('Arithm. Mittelwert x̄',     'mean', 'mean', 'yellow'),
+  ];
+
+  document.getElementById('kenn-tbody').innerHTML = rows.join('');
+
+  // Urlisten
+  function urliste(arr, label) {
+    const s = [...arr].sort((a,b)=>a-b);
+    return `<div class="urliste-box">
+      <strong>${label} — sortierte Urliste (${arr.length} Werte)</strong>
+      ${s.join(' | ')} <span style="color:#2a3050"> ms</span>
+    </div>`;
+  }
+
+  const uc = document.getElementById('urliste-container');
+  uc.innerHTML = urliste(first, `Erste ${n20} Messungen`);
+  if (hasTwo) uc.innerHTML += urliste(last, `Letzte ${n20} Messungen`);
+}
+
+// ─────────────────────────────────────────────
+//  TABLE
+// ─────────────────────────────────────────────
+function buildTable() {
+  const tbody = document.getElementById('history-body');
+  tbody.innerHTML = measurements.map((v, i) => {
+    const [label, color] = rating(v);
+    return `<tr>
+      <td>${i+1}</td>
+      <td>${v}</td>
+      <td style="color:${color}">${label}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────
+//  CSV EXPORT
+// ─────────────────────────────────────────────
+function exportCSV() {
+  const lines = ['Nr,Reaktionszeit_ms'];
+  measurements.forEach((v,i) => lines.push(`${i+1},${v}`));
+  const blob = new Blob([lines.join('\n')], {type:'text/csv'});
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = 'reaktionszeiten.csv';
+  a.click();
+}
+</script>
+
+</body>
+</html>
