@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Hin und her">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#ffe7aa">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Hin und her – Rechenspiel</title>
+<style>
+:root{--bg:#fff7df;--card:#fff;--ink:#27323a;--accent:#f2a648;--blue:#256b8f;--red:#c44;--green:#228a54;--line:#e6dec9}*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}header{padding:18px 16px;text-align:center;background:#ffe7aa;border-bottom:2px solid #f3d080}h1{margin:0;font-size:clamp(1.5rem,4vw,2.4rem);color:#d98700}.sub{margin:.35rem 0 0}.wrap{max-width:1150px;margin:0 auto;padding:16px;display:grid;gap:16px;grid-template-columns:360px 1fr}@media(max-width:850px){.wrap{grid-template-columns:1fr}.boardBox{order:2}}.panel,.boardBox{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 4px 14px #0001}.boardBox{display:flex;justify-content:center;align-items:center;min-height:620px}.track{width:160px;height:1160px;max-height:70vh;display:flex;flex-direction:column-reverse;border:3px solid #ddd;background:#f7f2e4;position:relative}.cell{flex:1;min-height:0;border-top:1px solid #ddd;display:flex;align-items:center;justify-content:center;font-weight:700;position:relative}.cell::before{content:"";position:absolute;width:86%;height:48%;border-radius:99px;background:#ffe999;opacity:.9}.cell span{position:relative;z-index:1}.start{background:#fff0b8;color:#0b597c}.goal{background:#ffb985!important;color:white;font-size:1.05rem}.pawn{position:absolute;width:30px;height:30px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px #0006;z-index:5;transform:translateY(-50%)}.p0{background:#e53935;left:-45px}.p1{background:#1e88e5;left:172px}.p2{background:#43a047;left:-82px}.p3{background:#8e24aa;left:209px}.off{opacity:.35}.controls{display:grid;gap:12px}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}button,input,select{font:inherit}button{border:0;border-radius:11px;padding:11px 14px;background:var(--accent);color:#2d1b00;font-weight:700;cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none}button:active{transform:translateY(1px)}button.secondary{background:#e8edf0;color:#223}button.danger{background:#e57373;color:white}button:disabled{opacity:.45;cursor:not-allowed}input,select{border:1px solid #ccc;border-radius:9px;padding:9px;background:white}.dice{display:grid;grid-template-columns:1fr 1fr;gap:10px}.die{border:2px dashed #d0b26b;background:#fff8e5;border-radius:14px;padding:14px;text-align:center}.die b{display:block;font-size:2rem}.status{font-size:1.1rem;background:#f7fbff;border-left:6px solid var(--blue);padding:12px;border-radius:10px}.players{display:grid;gap:8px}.player{display:flex;justify-content:space-between;align-items:center;padding:9px;border:1px solid #ddd;border-radius:11px;background:#fafafa}.dot{display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:-2px;margin-right:6px}.log{max-height:230px;overflow:auto;font-size:.95rem}.log table{width:100%;border-collapse:collapse}.log th,.log td{border-bottom:1px solid #ddd;padding:6px;text-align:left}.help{line-height:1.45}.winner{font-size:1.35rem;color:var(--green);font-weight:800}.small{font-size:.9rem;color:#59636a}.hidden{display:none}.notice{background:#fff5cf;border:1px solid #efd076;border-radius:12px;padding:10px;font-size:.95rem}
+</style>
+</head>
+<body>
+<header><h1>Spiel: Hin und her</h1><p class="sub">Rechnen mit positiven und negativen Zahlen – eine lokale Offline-Seite.</p></header>
+<main class="wrap">
+<section class="boardBox"><div class="track" id="track"></div></section>
+<section class="panel controls">
+  <div class="notice" id="notice">Safari-Hinweis: Als GitHub-Pages-PWA öffnen. In Safari: Teilen → Zum Home-Bildschirm. Danach läuft sie offline.</div>
+  <div><h2>Spiel starten</h2><div class="row"><label>Personen: <select id="playerCount"><option>2</option><option>3</option><option selected>4</option></select></label><button type="button" id="newGame">Neues Spiel</button></div><p class="small">Ziel: zuerst oben bei +14 oder unten bei −14 ankommen. Das Zielfeld muss nicht genau getroffen werden.</p></div>
+  <div class="players" id="players"></div>
+  <div class="status" id="status">Lade Spiel …</div>
+  <div class="dice"><div class="die">Rechenzeichen<b id="signDie">–</b></div><div class="die">Zahl<b id="numDie">–</b></div></div>
+  <div class="row"><button type="button" id="roll">Würfeln</button><button type="button" class="secondary" id="undo">Letzten Zug zurück</button><button type="button" class="danger" id="resetLog">Tabelle leeren</button></div>
+  <div id="win" class="winner hidden"></div>
+  <div><h2>Rechentabelle</h2><div class="log"><table><thead><tr><th>Person</th><th>Startfeld</th><th>Zeichen</th><th>Zahl</th><th>Zielfeld</th><th>Aufgabe</th></tr></thead><tbody id="log"></tbody></table></div></div>
+  <details class="help"><summary><b>Regeln</b></summary><p>Alle starten auf 0. Der Zeichenwürfel entscheidet die Richtung: <b>+</b> bedeutet aufwärts, <b>−</b> abwärts. Der Zahlenwürfel gibt die Schrittzahl 1 bis 6 an.</p><p>Landet eine Figur auf einem Feld mit gegnerischer Figur, wird diese hinausgeworfen. Wer draußen ist, muss beim nächsten Zug eine 6 würfeln, um wieder auf 0 zu kommen. Das Zeichen ist dann egal.</p></details>
+</section>
+</main>
+<script>
+(function(){
+'use strict';
+var colors=['#e53935','#1e88e5','#43a047','#8e24aa'];
+var players=[], current=0, history=[], gameOver=false;
+function $(id){return document.getElementById(id)}
+var track, logBody;
+function makeBoard(){track.innerHTML='';for(var n=-14;n<=14;n++){var c=document.createElement('div');c.className='cell '+(n===0?'start ':'')+(Math.abs(n)===14?'goal':'');c.setAttribute('data-n',String(n));c.innerHTML='<span>'+(Math.abs(n)===14?'ZIEL':n)+'</span>';track.appendChild(c)}}
+function yFor(pos){var cells=track.querySelectorAll('.cell');var wanted=Math.max(-14,Math.min(14,pos));for(var i=0;i<cells.length;i++){if(Number(cells[i].getAttribute('data-n'))===wanted){return cells[i].offsetTop+cells[i].offsetHeight/2}}return track.offsetHeight/2}
+function render(){var old=track.querySelectorAll('.pawn');for(var k=0;k<old.length;k++)old[k].parentNode.removeChild(old[k]);for(var i=0;i<players.length;i++){var p=players[i];var el=document.createElement('div');el.className='pawn p'+i+(p.out?' off':'');el.title=p.name+(p.out?' – draußen':'');el.style.top=yFor(p.out?0:p.pos)+'px';track.appendChild(el)}var html='';for(var j=0;j<players.length;j++){var q=players[j];html+='<div class="player"><span><span class="dot" style="background:'+colors[j]+'"></span>'+q.name+(j===current&&!gameOver?' ← dran':'')+'</span><b>'+(q.out?'draußen':q.pos)+'</b></div>'}$('players').innerHTML=html;$('roll').disabled=gameOver}
+function msg(t){$('status').innerHTML=t}
+function start(){var n=Number($('playerCount').value)||4;players=[];for(var i=0;i<n;i++)players.push({name:'Person '+(i+1),pos:0,out:false});current=0;history=[];gameOver=false;logBody.innerHTML='';$('win').className='winner hidden';$('signDie').textContent='–';$('numDie').textContent='–';msg(players[current].name+' ist dran.');render()}
+function addLog(a,b,c,d,e,f){var tr=document.createElement('tr');tr.innerHTML='<td>'+a+'</td><td>'+b+'</td><td>'+c+'</td><td>'+d+'</td><td>'+e+'</td><td>'+f+'</td>';logBody.insertBefore(tr,logBody.firstChild)}
+function roll(){if(gameOver||players.length===0)return;var before=JSON.stringify({players:players,current:current,log:logBody.innerHTML,gameOver:gameOver});var sign=Math.random()<0.5?'+':'−';var num=1+Math.floor(Math.random()*6);$('signDie').textContent=sign;$('numDie').textContent=String(num);var p=players[current], startField=p.out?'draußen':p.pos, target, task='', note='';
+if(p.out){if(num===6){p.out=false;p.pos=0;target=0;task='6 gewürfelt: zurück auf 0';note=' ist wieder im Spiel.'}else{target='draußen';task='keine 6: bleibt draußen';note=' bleibt draußen.'}}
+else{target=p.pos+(sign==='+'?num:-num);if(target>=14||target<=-14){p.pos=target>=14?14:-14;gameOver=true;target=p.pos;task=startField+' '+sign+' '+num+' = '+target;note=' erreicht das Ziel!'}else{p.pos=target;task=startField+' '+sign+' '+num+' = '+target;for(var i=0;i<players.length;i++){if(i!==current&&!players[i].out&&players[i].pos===p.pos){players[i].out=true;note+=' wirft '+players[i].name+' hinaus.'}}}}
+addLog(p.name,startField,sign,num,target,task);history.push(before);if(gameOver){$('win').textContent=p.name+' gewinnt!';$('win').className='winner';msg('🎉 '+p.name+note)}else{current=(current+1)%players.length;msg(p.name+note+' Jetzt ist '+players[current].name+' dran.')}render()}
+function undo(){var last=history.pop();if(!last)return;var s=JSON.parse(last);players=s.players;current=s.current;gameOver=s.gameOver;logBody.innerHTML=s.log;$('win').className=gameOver?'winner':'winner hidden';msg(players[current].name+' ist dran.');render()}
+function ready(){track=$('track');logBody=$('log');makeBoard();start();$('newGame').addEventListener('click',start,false);$('roll').addEventListener('click',roll,false);$('undo').addEventListener('click',undo,false);$('resetLog').addEventListener('click',function(){logBody.innerHTML=''},false);window.addEventListener('resize',render,false)}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,false);else ready();
+})();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./service-worker.js').catch(function (err) {
+      console.log('Service Worker konnte nicht registriert werden:', err);
+    });
+  });
+}
+</script>
+</body>
+</html>
